@@ -31,11 +31,11 @@ Note some pins may not be connected, or their use has yet to be determined.
 0	
 1
 2
-3	KX022_SDA
-4	KX022_ADDR
-5	KX022_SCL
+3	KX022_MOSI
+4	KX022_MISO
+5	KX022_SCK
 6	KX022_INT
-7	KX022_NCS
+7	KX022_CS
 8	SI1143_INT
 9	SI1143_LED
 10	SI1143_SDA
@@ -55,8 +55,8 @@ Note some pins may not be connected, or their use has yet to be determined.
 24	TEST_PAD_2
 25	VIBRATION (HIGH = ON)
 26	OLED_POWER_CONTROL (HIGH = ON)
-27	MX25_SO
-28	MX25_CE
+27	MX25_MISO
+28	MX25_CS
 29
 30	MX25_SCK
-31	MX25_SI
+31	MX25_MOSI
