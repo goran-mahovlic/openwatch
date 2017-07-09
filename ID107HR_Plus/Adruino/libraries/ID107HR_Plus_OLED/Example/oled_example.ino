@@ -1,13 +1,15 @@
 // OLED driver for ID107HR Plus display
 //
 //
-
-
 #include <SPI.h>
 #include <Adafruit_GFX.h>
 #include <ID107HR_Plus_OLED.h>
 
+#ifndef NRF_SPI_PIN_NOT_CONNECTED
+// This define is part of the Nordic SDK but doesn't seem to get included when SPI is compiled
 #define   NRF_SPI_PIN_NOT_CONNECTED   0xFFFFFFFF
+#endif
+
 #define OLED_DC		22
 #define OLED_CS		19
 #define OLED_RESET	20
@@ -17,9 +19,14 @@
 // MISO pin not connected
 #define OLED_MISO    NRF_SPI_PIN_NOT_CONNECTED
 
-//SPIClass SPI2(NRF_SPI1,  OLED_MISO,  OLED_CLK,  OLED_MOSI);
 ID107HR_Plus_OLED display(OLED_DC, OLED_RESET, OLED_CS, OLED_PWR);
 
+
+/*
+ // Example of how to use a different SPI channel, uncomment this block and change the variant folder so SPI is not on the same pins
+ SPIClass SPI2(NRF_SPI1,  OLED_MISO,  OLED_CLK,  OLED_MOSI);
+  ID107HR_Plus_OLED display(SPI2,OLED_DC, OLED_RESET, OLED_CS, OLED_PWR);
+*/
 #define NUMFLAKES 10
 #define XPOS 0
 #define YPOS 1
