@@ -23,37 +23,17 @@
  * You should have received a copy of the GNU General Public License v3.0
  * along with the Arduino SPIFlash Library.  If not, see
  * <http://www.gnu.org/licenses/>.
+ * Added SPIClass parameter: tekka
  */
 
 #include "SPIFlash.h"
 
 // Constructor
-#if defined (ARDUINO_ARCH_AVR)
-SPIFlash::SPIFlash(uint8_t cs, bool overflow) {
-  csPin = cs;
-#ifndef __AVR_ATtiny85__
-  cs_port = portOutputRegister(digitalPinToPort(csPin));
-#endif
-  cs_mask = digitalPinToBitMask(csPin);
-  pageOverflow = overflow;
-  pinMode(csPin, OUTPUT);
-}
-// Adding Low level HAL API to initialize the Chip select pinMode on RTL8195A - @boseji <salearj@hotmail.com> 2nd March 2017
-#elif defined (BOARD_RTL8195A)
-SPIFlash::SPIFlash(PinName cs, bool overflow) {
-  gpio_init(&csPin, cs);
-  gpio_dir(&csPin, PIN_OUTPUT);
-  gpio_mode(&csPin, PullNone);
-  gpio_write(&csPin, 1);
-  pageOverflow = overflow;
-}
-#else
-SPIFlash::SPIFlash(uint8_t cs, bool overflow) {
+SPIFlash::SPIFlash(SPIClass &spi, uint8_t cs, bool overflow):_spi(spi) {
   csPin = cs;
   pageOverflow = overflow;
   pinMode(csPin, OUTPUT);
 }
-#endif
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 //     Private functions used by read, write and erase operations     //
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
@@ -115,11 +95,11 @@ bool SPIFlash::_startSPIBus(void) {
       _SPSR = SPSR;
   #endif
   #ifdef SPI_HAS_TRANSACTION
-    SPI.beginTransaction(_settings);
+    _spi.beginTransaction(_settings);
   #else
-    SPI.setClockDivider(SPI_CLOCK_DIV_4)
-    SPI.setDataMode(SPI_MODE0);
-    SPI.setBitOrder(MSBFIRST);
+    _spi.setClockDivider(SPI_CLOCK_DIV_4)
+    _spi.setDataMode(SPI_MODE0);
+    _spi.setBitOrder(MSBFIRST);
     #endif
 #endif
   SPIBusState = true;
@@ -170,7 +150,7 @@ uint8_t SPIFlash::_nextByte(uint8_t data) {
 //Reads/Writes next int. Call 'n' times to read/write 'n' number of bytes. Should be called after _beginSPI()
 uint16_t SPIFlash::_nextInt(uint16_t data) {
   //return xfer16(data);
-  return SPI.transfer16(data);
+  return _spi.transfer16(data);
 }
 
 //Reads/Writes next data buffer. Call 'n' times to read/write 'n' number of bytes. Should be called after _beginSPI()
@@ -181,7 +161,7 @@ void SPIFlash::_nextBuf(uint8_t opcode, uint8_t *data_buffer, uint32_t size) {
     #if defined (ARDUINO_ARCH_SAM)
       _dueSPIRecByte(&(*data_buffer), size);
     #elif defined (ARDUINO_ARCH_AVR)
-      SPI.transfer(&data_buffer[0], size);
+      _spi.transfer(&data_buffer[0], size);
     #else
       for (uint16_t i = 0; i < size; i++) {
         *_dataAddr = xfer(NULLBYTE);
@@ -194,7 +174,7 @@ void SPIFlash::_nextBuf(uint8_t opcode, uint8_t *data_buffer, uint32_t size) {
     #if defined (ARDUINO_ARCH_SAM)
       _dueSPISendByte(&(*data_buffer), size);
     #elif defined (ARDUINO_ARCH_AVR)
-      SPI.transfer(&(*data_buffer), size);
+      _spi.transfer(&(*data_buffer), size);
     #else
       for (uint16_t i = 0; i < size; i++) {
         xfer(*_dataAddr);
@@ -209,7 +189,7 @@ void SPIFlash::_nextBuf(uint8_t opcode, uint8_t *data_buffer, uint32_t size) {
 void SPIFlash::_endSPI(void) {
   CHIP_DESELECT
   #ifdef SPI_HAS_TRANSACTION
-  SPI.endTransaction();
+  _spi.endTransaction();
   #else
   interrupts();
   #endif

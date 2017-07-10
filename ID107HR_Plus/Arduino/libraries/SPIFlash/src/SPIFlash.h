@@ -117,8 +117,8 @@ extern "C" {
 #else //#elif defined (ARDUINO_ARCH_ESP8266) || defined (ARDUINO_ARCH_SAMD)
   #define CHIP_SELECT   digitalWrite(csPin, LOW);
   #define CHIP_DESELECT digitalWrite(csPin, HIGH);
-  #define xfer(n)   SPI.transfer(n)
-  #define BEGIN_SPI SPI.begin();
+  #define xfer(n)   _spi.transfer(n)
+  #define BEGIN_SPI _spi.begin();
 #endif
 
 #define LIBVER 2
@@ -135,12 +135,7 @@ extern "C" {
 class SPIFlash {
 public:
   //----------------------------------------------Constructor-----------------------------------------------
-  //New Constructor to Accept the PinNames as a Chip select Parameter - @boseji <salearj@hotmail.com> 02.03.17
-  #if !defined (BOARD_RTL8195A)
-  SPIFlash(uint8_t cs = CS, bool overflow = true);
-  #else
-  SPIFlash(PinName cs = CS, bool overflow = true);
-  #endif
+  SPIFlash(SPIClass &spi, uint8_t cs = CS, bool overflow = true);
   //----------------------------------------Initial / Chip Functions----------------------------------------//
   bool     begin(uint32_t _chipSize = 0);
   void     setClock(uint32_t clockSpeed);
@@ -229,6 +224,7 @@ public:
   //-------------------------------------------Public variables---------------------------------------------//
 
 private:
+	SPIClass &_spi;
 #if defined (ARDUINO_ARCH_SAM)
   //-------------------------------------Private Arduino Due Functions--------------------------------------//
   void     _dmac_disable(void);
