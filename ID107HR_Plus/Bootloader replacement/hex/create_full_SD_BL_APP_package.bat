@@ -1,0 +1,1 @@
+nrfutil.exe dfu genpkg --softdevice s132_nrf52_2.0.0_softdevice.hex --bootloader nrf52832_xxaa_s132.hex --application application_ID107HR_Plus_V24.hex --application-version 0xffffffff --dev-type 0x023a --dev-revision 0x0064 --sd-req 0xfffe sd132_2_0_0_ID107HRP_V24_customBL_tekka.zip
