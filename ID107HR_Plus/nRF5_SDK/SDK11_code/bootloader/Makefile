@@ -259,9 +259,9 @@ flash: id107hr_plus_bootloader_sdk11
 	nrfjprog --reset -f nrf52
 	
 
-#	dfu: id107hr_plus_bootloader_sdk11
-#	@echo Creating DFU package: $(OUTPUT_BINARY_DIRECTORY)/$<.zip
-#	nrfutil dfu genpkg --bootloader $(OUTPUT_BINARY_DIRECTORY)/$<.hex --application-version 0xffffffff --dev-type 0x023a --dev-revision 0x0064 --sd-req 0xfffe $(OUTPUT_BINARY_DIRECTORY)/$<.zip
+dfu: id107hr_plus_bootloader_sdk11
+	@echo Creating DFU package: $(OUTPUT_BINARY_DIRECTORY)/$<.zip
+	nrfutil dfu genpkg --softdevice hex/s132_nrf52_2.0.0_softdevice.hex --bootloader $(OUTPUT_BINARY_DIRECTORY)/$<.hex --application  hex/application_ID107HR_Plus_V24.hex --application-version 0xffffffff --dev-type 0x023a --dev-revision 0x0064 --sd-req 0xfffe $(OUTPUT_BINARY_DIRECTORY)/$<.zip
 
 	
 	
