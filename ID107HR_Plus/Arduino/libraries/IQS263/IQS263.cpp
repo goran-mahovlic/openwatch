@@ -221,21 +221,27 @@ iqs263EventData IQS263::getEvents(void)
 	 *	The original code uses some sort of repeat start system to prevent a STOP bit being sent as this causes
 	 *  the device to do its own processing and not be available for further I2C comms until RDY is LOW again. 
 	 *
+	 * Update 2017/07/15	The problem appears to be caused buy a bug in the Wire library where 1 byte of additional
+	 * clock pulses are sent (8 clock pulses). This causes the IQS263 to return 0xFF and sometimes a NAK as this read 
+	 * is for 1 more bytes than in the register
+	 * I've posted an issue to Sandeep's repo about this
+	 * https://github.com/sandeepmistry/arduino-nRF5/issues/176
+	 *
 	 ***************************************************************************************************/
 	
 
     CommsIQS_start();   	// Start the communication session
     CommsIQS_Read(IQS263_ADDR, SYS_FLAGS, &data_buffer[0], 2);                  // Read the system flags register to enable all events
-	evt.eventFlags=data_buffer[0];
+	evt.eventFlags=data_buffer[1];
 	
-	CommsIQS_stop(); // hack to make it work
-	CommsIQS_start();// hack to make it work
+	CommsIQS_stop(); // Workaround for problem in Wire lib
+	CommsIQS_start();// Workaround for problem in Wire lib
 
 	CommsIQS_Read(IQS263_ADDR, TOUCH_BYTES, &data_buffer[2], 1);             // Read from the touch bytes register to enable touch events
 	evt.touchFlags=data_buffer[2];
 
-	CommsIQS_stop(); // hack to make it work
-	CommsIQS_start();// hack to make it work
+	CommsIQS_stop(); // Workaround for problem in Wire lib
+	CommsIQS_start();// Workaround for problem in Wire lib
 
     CommsIQS_Read(IQS263_ADDR, COORDINATES, &data_buffer[3], 3);                // Read the coordinates register to get slider coordinates
 	evt.wheelPos=data_buffer[3];
